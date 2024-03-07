@@ -10,13 +10,14 @@ smoother = Smoother('gs',3,3);
 coarsestLevelSolver = Solver('cg');
 coarsestLevelSolver.stoppingCriterion.name = 'res2norm';
 coarsestLevelSolver.stoppingCriterion.relative = true;
-coarsestLevelSolver.stoppingCriterion.tolerance = 1e-1;%2.^(-4);
+coarsestLevelSolver.stoppingCriterion.tolerance = 1e-1;
 
 % The constant C is chosen as a minimal value such that the efficiency 
 % index is above or equal to one for all iterates.
 C = 1.193071412121244;
 
 for j = 2:6
+    disp("setting "+num2str(j-1)+"/5")
     numberOfLevels = j;
     load('3Dpeak.mat','mh');
     mh.selectLevels(numberOfLevels=j,from=2);
@@ -31,6 +32,7 @@ for j = 2:6
     
     while (errAnorm/errAnormInit>vcycleRelativeTolerance)&&(iter<vcycleMaximumNumberOfIterations)
         iter = iter + 1;
+        disp("V-cycle iteration "+num2str(iter))
         approx = vcycle(mh.A,mh.P,numberOfLevels,mh.F{numberOfLevels},approx,smoother,coarsestLevelSolver);        
         errAnorm = sqrt((approx-mh.solution{numberOfLevels})'*mh.A{numberOfLevels}*(approx-mh.solution{numberOfLevels}));
         efficiencyIndexBackslashL1(iter) = C*computeErrAnormMLEstimate(mh.A,mh.P,mh.F{numberOfLevels},numberOfLevels,approx,coarseSolveName='backslash',summationStyle='l1')/errAnorm;

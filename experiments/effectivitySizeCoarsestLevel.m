@@ -11,7 +11,7 @@ coarsestLevelSolver = Solver('cg');
 coarsestLevelSolver.stoppingCriterion.name = 'res2norm';
 
 coarsestLevelSolver.stoppingCriterion.relative = true;
-coarsestLevelSolver.stoppingCriterion.tolerance = 0.1; %2.^(-4);
+coarsestLevelSolver.stoppingCriterion.tolerance = 0.1;
 
 numberOfLevels = 2;
 
@@ -21,7 +21,7 @@ numberOfLevels = 2;
 C = 1.100096470053534;
 
 for j=2:7-(numberOfLevels-1)
-    j
+    disp("setting "+num2str(j-1)+"/5")
     load('3Dpeak.mat','mh');
     mh.selectLevels(numberOfLevels=numberOfLevels,from=j);
 
@@ -37,7 +37,8 @@ for j=2:7-(numberOfLevels-1)
     errAnorm = errAnormInit;
 
     while (errAnorm/errAnormInit>vcycleRelativeTolerance)&&(iter<vcycleMaximumNumberOfIterations)
-        iter = iter + 1
+        iter = iter + 1;
+        disp("V-cycle iteration "+num2str(iter))
         approx = vcycle(mh.A,mh.P,numberOfLevels,mh.F{numberOfLevels},approx,smoother,coarsestLevelSolver);
         errAnorm = sqrt((approx-mh.solution{numberOfLevels})'*mh.A{numberOfLevels}*(approx-mh.solution{numberOfLevels}));
 
