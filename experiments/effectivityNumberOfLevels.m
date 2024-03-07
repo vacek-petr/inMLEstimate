@@ -10,11 +10,11 @@ smoother = Smoother('gs',3,3);
 coarsestLevelSolver = Solver('cg');
 coarsestLevelSolver.stoppingCriterion.name = 'res2norm';
 coarsestLevelSolver.stoppingCriterion.relative = true;
-coarsestLevelSolver.stoppingCriterion.tolerance = 2.^(-4);
+coarsestLevelSolver.stoppingCriterion.tolerance = 1e-1;%2.^(-4);
 
 % The constant C is chosen as a minimal value such that the efficiency 
 % index is above or equal to one for all iterates.
-C = 1.189829191648245;
+C = 1.193071412121244;
 
 for j = 2:6
     numberOfLevels = j;

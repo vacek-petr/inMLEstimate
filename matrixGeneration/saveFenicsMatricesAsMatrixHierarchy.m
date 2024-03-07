@@ -51,7 +51,7 @@ for j = 1:5
     mh.ASmallestEigenvalues{j} = eigs(A{j},1,'smallestabs');
 end
 % approximate smallest eigenvalue of A on levels 6 and 7
-% we know that ther is a lower bound on the smallest eigenvalue, Ch^3,
+% we know that there is a lower bound on the smallest eigenvalue, Ch^3,
 % where C is a constant so we extrapolate the eigenvalues as 
 mh.ASmallestEigenvalues{6} = mh.ASmallestEigenvalues{5}*0.5^3;
 mh.ASmallestEigenvalues{7} = mh.ASmallestEigenvalues{6}*0.5^3;

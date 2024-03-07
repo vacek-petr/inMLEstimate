@@ -9,18 +9,19 @@ vcycleMaximumNumberOfIterations = 100;
 smoother = Smoother('gs',3,3);
 coarsestLevelSolver = Solver('cg');
 coarsestLevelSolver.stoppingCriterion.name = 'res2norm';
+
 coarsestLevelSolver.stoppingCriterion.relative = true;
-coarsestLevelSolver.stoppingCriterion.tolerance = 2.^(-4);
+coarsestLevelSolver.stoppingCriterion.tolerance = 0.1; %2.^(-4);
 
 numberOfLevels = 2;
 
 % The constant C is chosen as a minimal value such that the efficiency 
 % index for the variant with the direct solver on the coarsest level 
 % is above or equal to one for all iterates.
-C = 1.104702245736206;
+C = 1.100096470053534;
 
 for j=2:7-(numberOfLevels-1)
-
+    j
     load('3Dpeak.mat','mh');
     mh.selectLevels(numberOfLevels=numberOfLevels,from=j);
 
@@ -36,7 +37,7 @@ for j=2:7-(numberOfLevels-1)
     errAnorm = errAnormInit;
 
     while (errAnorm/errAnormInit>vcycleRelativeTolerance)&&(iter<vcycleMaximumNumberOfIterations)
-        iter = iter + 1;
+        iter = iter + 1
         approx = vcycle(mh.A,mh.P,numberOfLevels,mh.F{numberOfLevels},approx,smoother,coarsestLevelSolver);
         errAnorm = sqrt((approx-mh.solution{numberOfLevels})'*mh.A{numberOfLevels}*(approx-mh.solution{numberOfLevels}));
 
