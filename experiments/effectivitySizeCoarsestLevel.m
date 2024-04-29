@@ -5,8 +5,8 @@ if ~exist('..\results', 'dir')
     mkdir('..\results')
 end
 
-% "2Dpeak", "2Dshell", "3Dpeak", "3Dshell",
-problemName = "2Dpeak"; 
+% select problem name from "2Dpeak", "2Dshell", "3Dpeak", "3Dshell"
+problemName = "3Dpeak";
 
 disp("Solving " + problemName)
 addpath('..\data\' + problemName)
