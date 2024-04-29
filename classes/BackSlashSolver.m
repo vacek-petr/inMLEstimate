@@ -1,6 +1,4 @@
 classdef BackSlashSolver < Solver
-    %BACKSLASHSOLVER Summary of this class goes here
-    %   Detailed explanation goes here
 
     methods
         function backSlashSolver = BackSlashSolver()
