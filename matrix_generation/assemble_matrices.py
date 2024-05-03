@@ -7,26 +7,25 @@ import scipy.io
 from dolfin import *
 from mshr import *
 
-# Select problem name: "2Dpeak", "2Dshell", "3Dpeak", or "3Dshell" 
-problemName = "2Dpeak" 
-onlyFreeNodes = True
+problemName = "3Dpeak" #  "2Dpeak" "2Dshell" "3Dpeak" "3Dshell" 
+onlyFreeDoFs = True
 #  In FEniCS the stiffness matrix is assembled using all nodes of the mesh. The
 #  homogeneous Dirichlet boundary condition is then applied by setting to zero all non-
 #  diagonal elements in rows and columns which correspond to nodes on the boundary
 #  and setting to zero the corresponding elements in the right-hand side vector. 
-#  if (onlyFreeNodes == True)
+#  if (onlyFreeDoFs == True)
 #  we modify the stiffness matrices, the prolongation matrices and the right-hand side vector
 #  so that the Galerkin condition A{j-1} = P{j}'*A{j}*P{j} holds.
 
-if ( problemName == "2Dpeak" ):
+if (problemName == "2Dpeak"):
     n = 11
-    nlevel = 9
+    nlevel = 9 
     mesh = UnitSquareMesh(n,n)
     exactSolution = Expression("x[0]*(x[0] - 1)*x[1]*(x[1] - 1)*exp(-100*(pow(x[0] - 0.5,2) + pow(x[1] - 0.5,2)))", degree=2)
     gradExactSolution = Expression(["(200*pow(x[0],3) - 300*pow(x[0],2)+98*x[0]+1)*(x[1]-1)*x[1]*(-exp(-100*(pow(x[0] - 0.5,2) + pow(x[1] - 0.5,2) )))","(200*pow(x[1],3) - 300*pow(x[1],2)+98*x[1]+1)*(x[0]-1)*x[0]*(-exp(-100*(pow(x[0] - 0.5,2) + pow(x[1] - 0.5,2))))"],degree=2)
-    f = Expression("-(2*exp(-100*(pow(x[0] - 0.5,2) + pow(x[1] - 0.5,2))))*(20000*pow(x[0],4)*(x[1] - 1)*x[1] - 40000*pow(x[0],3)*(x[1] - 1)*x[1] + pow(x[0],2)*(20000*pow(x[1],4)-40000*pow(x[1],3) + 49000*pow(x[1],2)-29000*x[1] - 99) + x[0]*(-20000*pow(x[1],4) + 40000*pow(x[1],3) -29000*pow(x[1],2) + 9000*x[1] + 99)-99*(x[1]-1)*x[1])",degree=4)
+    f = Expression("-(2*exp(-100*(pow(x[0] - 0.5,2) + pow(x[1] - 0.5,2))))*(20000*pow(x[0],4)*(x[1] - 1)*x[1] - 40000*pow(x[0],3)*(x[1] - 1)*x[1] + pow(x[0],2)*(20000*pow(x[1],4)-40000*pow(x[1],3) + 49000*pow(x[1],2)-29000*x[1] - 99) + x[0]*(-20000*pow(x[1],4) + 40000*pow(x[1],3) -29000*pow(x[1],2) + 9000*x[1] + 99)-99*(x[1]-1)*x[1])",degree=2)
 
-if ( problemName == "2Dshell" ):
+if (problemName == "2Dshell"):
     n = 11
     nlevel = 9
     domain = Circle(Point(0,0),1) - Circle(Point(0,0),0.5) 
@@ -34,14 +33,14 @@ if ( problemName == "2Dshell" ):
     f = Expression("0.0",degree=2)
 
     
-if ( problemName == "3Dshell" ):
+if (problemName == "3Dshell"):
     nlevel = 5
+    f = Expression("0.0",degree=2)
     mesh_file_name = "3Dshell_meshfile"
     mesh = Mesh(mesh_file_name + ".xml")
     mesh = refine(mesh)
-    f = Expression("0.0",degree=2)
 
-if ( problemName == "3Dpeak" ):
+if (problemName == "3Dpeak"):
     nlevel = 6
     n = 6 
     mesh = UnitCubeMesh(n,n,n)
@@ -87,7 +86,7 @@ for j in range(0,nlevel):
     v = TestFunction(VFine)
 
     if (problemName=="2Dpeak" or problemName=="3Dpeak"):
-        bc = DirichletBC(VFine, 0.0, boundary)
+        bc = DirichletBC(VFine,0.0,boundary)
     
     if (problemName=="2Dshell"):
         bc1 = DirichletBC(VFine, 100.0, boundary_inside2D)
@@ -105,7 +104,7 @@ for j in range(0,nlevel):
     u = Function(VFine)
     solve(A, u.vector(),F,"cg")
     
-    # save solution for first two levels in xdmf file 
+    # save solution level fro first two levels in xdmf file 
     if ( j < 2 ):
         fileName = "solution_level_" + str(j) + ".xdmf"
         file = XDMFFile(fileName)
@@ -127,7 +126,7 @@ for j in range(0,nlevel):
     AScipy = sparse.csr_matrix((data,indices,indptr))
     AScipy.eliminate_zeros()
 
-    if (onlyFreeNodes):
+    if (onlyFreeDoFs):
         if (problemName=="2Dpeak" or problemName=="3Dpeak"):
             boundaryNodes = np.fromiter(bc.get_boundary_values().keys(), dtype=int)
 
@@ -138,6 +137,7 @@ for j in range(0,nlevel):
         
         [nDoFs,nDoFs] = AScipy.shape 
         freeNodes = np.setdiff1d(range(0,nDoFs),boundaryNodes)
+        freeNodes.sort()
         vectorsFreeNodes[j] = freeNodes
         print("number of all DoFs: ", VFine.dim())  
         print("number of free DoFs: ", freeNodes.shape[0])  
@@ -147,11 +147,12 @@ for j in range(0,nlevel):
     matricesA[j] = AScipy
     
     FPetsc = as_backend_type(F).vec()    
+
+    if (onlyFreeDoFs):
+        FScipy = FPetsc.getValues(freeNodes.astype(np.int32))
+    else:
+        FScipy = FPetsc.getValues(range(0,FPetsc.getSize()))
     
-    FScipy = np.array(FPetsc.getValues(range(0,FPetsc.getSize())))
-    FScipy = np.atleast_2d(FScipy).transpose()
-    if (onlyFreeNodes):
-        FScipy = FScipy[freeNodes]
     vectorsF[j] = FScipy     
 
     if (j != 0):
@@ -160,9 +161,9 @@ for j in range(0,nlevel):
         indptr, indices, data = PPetsc.getValuesCSR()
         PScipy = sparse.csr_matrix((data,indices,indptr))  
         PScipy.eliminate_zeros()
-        if (onlyFreeNodes):
-            PScipy = PScipy[freeNodes,:]
+        if (onlyFreeDoFs):
             PScipy = PScipy[:,vectorsFreeNodes[j-1]]
+            PScipy = PScipy[freeNodes,:]
         matricesP[j-1] = PScipy
         
     if (j < nlevel-1):
@@ -173,7 +174,7 @@ for j in range(0,nlevel):
             mesh = refine(mesh)
 
 scipy.io.savemat("A.mat", {"A": matricesA})
-scipy.io.savemat("F.mat", {"F": vectorsF})
+scipy.io.savemat("F.mat", {"F": vectorsF}, oned_as='column')
 scipy.io.savemat("P.mat", {"P": matricesP})
 
 toc = time.time()
