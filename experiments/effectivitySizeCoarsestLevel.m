@@ -1,4 +1,4 @@
-clear all; close all;
+%clear all; close all;
 addpath('..\functions');
 addpath('..\classes');
 if ~exist('..\results', 'dir')
@@ -6,7 +6,7 @@ if ~exist('..\results', 'dir')
 end
 
 % select problem name from "2Dpeak", "2Dshell", "3Dpeak", "3Dshell"
-problemName = "3Dpeak";
+problemName = "2Dpeak";
 
 disp("Solving " + problemName)
 addpath('..\data\' + problemName)
@@ -43,7 +43,7 @@ coarsestLevelSolver = CGSolver(stoppingCriterion);
 % and also in the experiment effectivityNumberOfLevels.
 switch(problemName)
     case "2Dpeak"
-        C_numexp = 1.178301355536950;
+        C_numexp = 1.184153650441326;
         diamOmega = sqrt(2);
         meshsize_0 = 0.12856486930664487;
     case"2Dshell"
@@ -51,7 +51,7 @@ switch(problemName)
         diamOmega = 1;
         meshsize_0 =  0.09771455584161245;
     case"3Dpeak"
-        C_numexp = 1.282709081580298;
+        C_numexp = 1.2831219583624131;
         diamOmega = sqrt(3);
         meshsize_0 = 0.2886751345948128;
     case "3Dshell"
@@ -59,8 +59,6 @@ switch(problemName)
         diamOmega = 1;
         meshsize_0 = 0.13832808829250579;
 end
-
-% 2Dpeak: 1/0.84; 2Dshell: 1/0.72; 3Dshell: 1/0.49; %1.193071412121244;
 
 % loop over different setting - increasing the size of the coarsest-level problem 
 for j = 1:mh.numberOfLevels - (J-1)

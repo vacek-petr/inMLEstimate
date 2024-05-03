@@ -19,19 +19,24 @@ load("P.mat","P");
 
 mh = MultigridHierarchy('2Dpeak');
 mh.A = A;
+clear("A");
 mh.numberOfLevels = size(mh.A,2);
 mh.F = F;
+clear("F");
 mh.P = {};
 mh.P(2:mh.numberOfLevels) = P;
+clear("P");
 
-mh.solution{1} = mh.A{1}\mh.F{1};
+for j = 1:4
+    mh.solution{j} = mh.A{j}\mh.F{j};
+end
 
 
 % compute solution using V-cycle on level mh.numberOfLevels-1
 
 smoother = GSSmoother(3,3);
 coarsestLevelSolver = BackSlashSolver();
-for J = 2:mh.numberOfLevels
+for J = 5:mh.numberOfLevels
     approx = zeros(size(mh.F{J}));
     for i = 1:30
         approx = vcycle(mh.A(1:J),mh.P(1:J),J,mh.F{J},approx,smoother,coarsestLevelSolver);
@@ -44,7 +49,7 @@ end
 
 % approximate smallest eigenvalue of A on levels 1 to mh.numberOfLevels-2
 for j = 1:mh.numberOfLevels-2
-    mh.ASmallestEigenvalues{j} = eigs(A{j},1,'smallestabs');
+    mh.ASmallestEigenvalues{j} = eigs(mh.A{j},1,'smallestabs');
 end
 
 % approximate smallest eigenvalue of A on levels mh.numberOfLevels-1 and mh.numberOfLevels
