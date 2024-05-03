@@ -7,7 +7,7 @@ MATLAB R2023a is used.
 **experiments/effectivitySizeCoarsestLevel.m** with **problemName='3Dpeak'** generates data included in Figures 2-3  of the paper.
 
 ## Additional experiments
-The repositiory contains 3 additional problems we tested the estimates on 2Dpeak, 2Dshell and 3Dshell, the problem desciptions and results can be found in **additional_experimets.pdf**.
+The repositiory contains 3 additional problems we tested the estimates on 2Dpeak, 2Dshell and 3Dshell, the problem desciptions and results can be found in **additional_numerical_experimets.pdf**.
  
 
 ## Multigrid Hierarchies
